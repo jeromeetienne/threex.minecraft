@@ -16,6 +16,7 @@
 	var renderer	= new THREE.WebGLRenderer();
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.body.appendChild( renderer.domElement );
+	renderer.setClearColor('#444',1)
 
 	var updateFcts	= [];
 	var scene	= new THREE.Scene();
