@@ -17,10 +17,11 @@ THREEx.MinecraftChar	= function(skinUrl){
 	texture.minFilter	= THREE.NearestFilter;
 	this.texture	= texture
 
-	var material	= new THREEx.MinecraftChar.defaultMaterial({
+	var defaultMaterial = THREEx.MinecraftChar.defaultMaterial || THREE.MeshBasicMaterial
+	var material	= new defaultMaterial({
 		map	: texture
 	});
-	var materialTran= new THREEx.MinecraftChar.defaultMaterial({
+	var materialTran= new defaultMaterial({
 		map		: texture,
 		transparent	: true,
 		depthWrite	: false,
@@ -189,7 +190,7 @@ THREEx.MinecraftChar	= function(skinUrl){
 
 
 THREEx.MinecraftChar.baseUrl	= '../'
-THREEx.MinecraftChar.defaultMaterial	= THREE.MeshBasicMaterial
+THREEx.MinecraftChar.defaultMaterial	= null
 /**
  * Load a skin
  *
