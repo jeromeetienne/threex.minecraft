@@ -48,6 +48,7 @@ AFRAME.registerComponent('minecraft-head-anim', {
 	init: function () {
 		var character = this.el.components.minecraft.character
 		this.headAnims	= new THREEx.MinecraftCharHeadAnimations(character);
+		console.assert( this.headAnims.names().indexOf(this.data) !== -1 )
 		this.headAnims.start(this.data);
 	},
 	tick : function(now, delta){
@@ -55,6 +56,7 @@ AFRAME.registerComponent('minecraft-head-anim', {
 	},
 	update: function () {
 		// TODO how to check if the name is value
+		console.assert( this.headAnims.names().indexOf(this.data) !== -1 )
 		this.headAnims.start(this.data);
 	},
 });
@@ -71,13 +73,14 @@ AFRAME.registerComponent('minecraft-body-anim', {
 	init: function () {
 		var character = this.el.components.minecraft.character
 		this.bodyAnims	= new THREEx.MinecraftCharBodyAnimations(character);
+		console.assert( this.bodyAnims.names().indexOf(this.data) !== -1 )
 		this.bodyAnims.start(this.data);
 	},
 	tick : function(now, delta){
 		this.bodyAnims.update(delta/1000,now/1000)
 	},
 	update: function () {
-		// TODO how to check if the name is value
+		console.assert( this.bodyAnims.names().indexOf(this.data) !== -1 )
 		this.bodyAnims.start(this.data);
 	},
 });

@@ -16,6 +16,10 @@ Here are the examples you can try
 
 Docs are scarced, but examples are clear. Play with the examples, modify them, tweak the value. 
 
+# A-Frame Support
+You can include it in your a-frame too - [a-frame example](https://jeromeetienne.github.io/threex.minecraft.js/a-frame/examples/aframe-minecraft.html)
+
+you can download the component from [here](https://jeromeetienne.github.io/threex.minecraft.js/a-frame/aframe-minecraft.js)
 
 # Futures
 - make an actual [threex README.md](https://github.com/jeromeetienne/threex.sample/blob/master/README.md)
