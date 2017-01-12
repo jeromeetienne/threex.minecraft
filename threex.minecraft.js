@@ -12,10 +12,11 @@ THREEx.MinecraftChar	= function(skinUrl){
 	//////////////////////////////////////////////////////////////////////////////////
 	//		comment								//
 	//////////////////////////////////////////////////////////////////////////////////	
-	var texture	= THREE.ImageUtils.loadTexture( skinUrl );
+	var texture	= new THREE.Texture
 	texture.magFilter	= THREE.NearestFilter;
 	texture.minFilter	= THREE.NearestFilter;
 	this.texture	= texture
+	this.loadSkin( skinUrl );
 
 	var defaultMaterial = THREEx.MinecraftChar.defaultMaterial || THREE.MeshBasicMaterial
 	var material	= new defaultMaterial({
@@ -27,7 +28,6 @@ THREEx.MinecraftChar	= function(skinUrl){
 		depthWrite	: false,
 		side		: THREE.DoubleSide
 	})
-
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		define size constant						//
