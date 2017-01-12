@@ -19,3 +19,4 @@ Docs are scarced, but examples are clear. Play with the examples, modify them, t
 
 # Futures
 - make an actual [threex README.md](https://github.com/jeromeetienne/threex.sample/blob/master/README.md)
+- make a aframe component for that
