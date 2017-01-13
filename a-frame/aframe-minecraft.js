@@ -1,3 +1,14 @@
+// The mesh mixin provides common material properties for creating mesh-based primitives.
+// This makes the material component a default component and maps all the base material properties.
+AFRAME.registerPrimitive('a-minecraft', AFRAME.utils.extendDeep({}, AFRAME.primitives.getMeshMixin(), {
+  // Preset default components. These components and component properties will be attached to the entity out-of-the-box.
+  defaultComponents: {
+    minecraft: {},
+    'minecraft-head-anim': 'yes',
+    // 'minecraft-body-anim': {},
+  },
+}));
+
 //////////////////////////////////////////////////////////////////////////////
 //		Code Separator
 //////////////////////////////////////////////////////////////////////////////
@@ -25,7 +36,6 @@ AFRAME.registerComponent('minecraft', {
 	},
 	update: function () {
 		var character = this.character
-		console.log('update')
 		character.root.scale.set(1,1,1).multiplyScalar(this.data.heightMeter)
 		
 		if( this.data.skinUrl ){
@@ -48,16 +58,13 @@ AFRAME.registerComponent('minecraft-head-anim', {
 	init: function () {
 		var character = this.el.components.minecraft.character
 		this.headAnims	= new THREEx.MinecraftCharHeadAnimations(character);
-		console.assert( this.headAnims.names().indexOf(this.data) !== -1 )
-		this.headAnims.start(this.data);
 	},
 	tick : function(now, delta){
 		this.headAnims.update(delta/1000,now/1000)
 	},
 	update: function () {
-		// TODO how to check if the name is value
 		console.assert( this.headAnims.names().indexOf(this.data) !== -1 )
-		this.headAnims.start(this.data);
+		this.headAnims.start(this.data);			
 	},
 });
 
@@ -73,8 +80,6 @@ AFRAME.registerComponent('minecraft-body-anim', {
 	init: function () {
 		var character = this.el.components.minecraft.character
 		this.bodyAnims	= new THREEx.MinecraftCharBodyAnimations(character);
-		console.assert( this.bodyAnims.names().indexOf(this.data) !== -1 )
-		this.bodyAnims.start(this.data);
 	},
 	tick : function(now, delta){
 		this.bodyAnims.update(delta/1000,now/1000)
