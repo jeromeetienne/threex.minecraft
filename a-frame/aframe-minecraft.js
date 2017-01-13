@@ -5,7 +5,7 @@ AFRAME.registerPrimitive('a-minecraft', AFRAME.utils.extendDeep({}, AFRAME.primi
   defaultComponents: {
     minecraft: {},
     'minecraft-head-anim': 'yes',
-    // 'minecraft-body-anim': {},
+    'minecraft-body-anim': 'still',
   },
 }));
 
