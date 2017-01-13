@@ -1,3 +1,1 @@
-a-frame component for threex.minecraft.js
-
-Youpi this is my first aframe-components
+a-frame components for threex.minecraft.js

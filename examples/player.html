@@ -10,7 +10,8 @@
 <script src='../threex.minecraftcharheadanim.js'></script>
 <script src='../threex.minecraftcharbodyanim.js'></script>
 <!-- include player -->
-<script src='../threex.minecraftplayer.js'></script>
+<script src='../threex.minecraftnickname.js'></script>
+<script src='../threex.minecraftbubble.js'></script>
 <!-- include animation -->
 <body style='margin: 0px; background-color: #bbbbbb; overflow: hidden;'><script>
 	var renderer	= new THREE.WebGLRenderer();
@@ -28,57 +29,39 @@
 	//		comment								//
 	//////////////////////////////////////////////////////////////////////////////////
 
-	var player	= new THREEx.MinecraftPlayer()
-	scene.add(player.character.root)
+	var character	= new THREEx.MinecraftChar()
+	scene.add(character.root)
+
+	var controls	= new THREEx.MinecraftControls(character)
+	THREEx.MinecraftControls.setKeyboardInput(controls)
 	onRenderFcts.push(function(delta, now){
-		player.update(delta, now)
+		controls.update(delta, now)
 	})
-	
-	// load a well known skin
-	player.character.loadWellKnownSkin('3djesus')
-	
-	//////////////////////////////////////////////////////////////////////////////////
-	//		controls.input based on keyboard				//
-	//////////////////////////////////////////////////////////////////////////////////
-	
-	document.body.addEventListener('keydown', function(event){
-		var input	= player.controls.input
-		if( event.keyCode === 'W'.charCodeAt(0) )	input.up	= true
-		if( event.keyCode === 'S'.charCodeAt(0) )	input.down	= true
-		if( event.keyCode === 'A'.charCodeAt(0) )	input.left	= true
-		if( event.keyCode === 'D'.charCodeAt(0) )	input.right	= true
-		if( event.keyCode === 'Q'.charCodeAt(0) )	input.strafeLeft= true
-		if( event.keyCode === 'E'.charCodeAt(0) )	input.strafeRight= true
 
-		// to support arrows because tsate asked me :)
-		if( event.keyCode === 38 )			input.up	= true
-		if( event.keyCode === 40 )			input.down	= true
-		if( event.keyCode === 37 && !event.shiftKey )	input.left	= true
-		if( event.keyCode === 39 && !event.shiftKey )	input.right	= true
-		if( event.keyCode === 37 &&  event.shiftKey )	input.strafeLeft= true
-		if( event.keyCode === 39 &&  event.shiftKey )	input.strafeRight= true
-	})
-	document.body.addEventListener('keyup', function(event){
-		var input	= player.controls.input
-
-		if( event.keyCode === 'W'.charCodeAt(0) )	input.up	= false
-		if( event.keyCode === 'S'.charCodeAt(0) )	input.down	= false
-		if( event.keyCode === 'A'.charCodeAt(0) )	input.left	= false
-		if( event.keyCode === 'D'.charCodeAt(0) )	input.right	= false
-		if( event.keyCode === 'Q'.charCodeAt(0) )	input.strafeLeft= false
-		if( event.keyCode === 'E'.charCodeAt(0) )	input.strafeRight= false
-
-
-		// to support arrows because tsate asked me :)
-		if( event.keyCode === 38 )			input.up	= false
-		if( event.keyCode === 40 )			input.down	= false
-		if( event.keyCode === 37 ||  event.shiftKey )	input.left	= false
-		if( event.keyCode === 39 ||  event.shiftKey )	input.right	= false
-		if( event.keyCode === 37 || !event.shiftKey )	input.strafeLeft= false
-		if( event.keyCode === 39 || !event.shiftKey )	input.strafeRight= false
+	var headAnims	= new THREEx.MinecraftCharHeadAnimations(character);
+	headAnims.start('still');
+	onRenderFcts.push(function(delta, now){
+		headAnims.update(delta, now)	
 	})
 
 
+	// init bodyAnims
+	var bodyAnims	= new THREEx.MinecraftCharBodyAnimations(character);
+	bodyAnims.start('stand');
+	onRenderFcts.push(function(delta, now){
+		bodyAnims.update(delta, now)	
+	})	
+
+	onRenderFcts.push(function(delta, now){
+		var input	= controls.input
+		if( input.up || input.down ){
+			bodyAnims.start('run');			
+		}else if( input.strafeLeft || input.strafeRight ){
+			bodyAnims.start('strafe');
+		}else {
+			bodyAnims.start('stand');			
+		}
+	})
 	//////////////////////////////////////////////////////////////////////////////////
 	//		render the scene						//
 	//////////////////////////////////////////////////////////////////////////////////

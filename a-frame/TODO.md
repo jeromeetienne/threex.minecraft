@@ -1,0 +1,11 @@
+# how to include threex.minecraftplayer ?
+- pack it up with a composition of component
+- ultimatly remove threex.minecraftplayer.js
+  - change player.html examples 
+- convert the cartouche + say in a plugin
+  - minecraft-nickname
+  - minecraft-bubble
+- make the controls
+  - to be able to handle keyboard on options for input.*
+    - examples/controls.html in a threex.minecraftcontrols.js
+  - minecraft-controls
