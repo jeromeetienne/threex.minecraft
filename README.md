@@ -19,8 +19,8 @@ Docs are scarced, but examples are clear. Play with the examples, modify them, t
 # A-Frame Support
 You can include it in your a-frame too - [a-frame example](https://jeromeetienne.github.io/threex.minecraft.js/a-frame/examples/aframe-minecraft.html)
 
-you can download the component from [here](https://jeromeetienne.github.io/threex.minecraft.js/a-frame/aframe-minecraft.js)
+You can download the component from [here](https://jeromeetienne.github.io/threex.minecraft.js/a-frame/aframe-minecraft.js)
 
 # Futures
 - make an actual [threex README.md](https://github.com/jeromeetienne/threex.sample/blob/master/README.md)
-- make a aframe component for that
+- improve a-frame support
