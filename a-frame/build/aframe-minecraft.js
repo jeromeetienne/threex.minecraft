@@ -559,6 +559,88 @@ THREEx.MinecraftChar.skinWellKnownUrls	= {
 	'theflash'		: 'images/theflash.png',
 	'woody'			: 'images/woody.png',
 }
+var THREEx	= THREEx	|| {}
+
+THREEx.MinecraftBubble	= function(character){
+	var _this = this
+	//////////////////////////////////////////////////////////////////////////////////
+	//		update functions						//
+	//////////////////////////////////////////////////////////////////////////////////
+	
+	var onRenderFcts= [];
+	this.update	= function(delta, now){
+		onRenderFcts.forEach(function(updateFct){
+			updateFct(delta, now)
+		})
+	}.bind(this)	
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Say								//
+	//////////////////////////////////////////////////////////////////////////////////
+	this._object3D	= null
+	this._createdAt	= null
+	this.expireAfter= 10.0
+	this.update	= function(delta, now){
+		// if there is no say at the moment, do nothing
+		if( _this._createdAt === null )	return
+		// if the say sprite isnt old enougth to timeout, do nothing
+		var sayAge	= (Date.now() - _this._createdAt)/1000.0
+		if( sayAge < _this.expireAfter )		return
+		// remove the say sprite
+		_this.clear()
+	}
+	this.clear	= function(){
+		if( this._object3D === null )	return
+		character.root.remove(this._object3D)
+		this._object3D	= null
+		this._createdAt	= null
+	}
+	this.set	= function(text){
+		if( this._object3D )	this.clear()
+		// update for timer
+		this._createdAt	= Date.now()
+		// build the texture
+		var canvas	= buildChatBubble(text);
+		var texture	= new THREE.Texture(canvas)
+		texture.needsUpdate	= true
+		// build the sprite itself
+		var material	= new THREE.SpriteMaterial({
+			map			: texture,
+			useScreenCoordinates	: false
+		});
+		var sprite		= new THREE.Sprite( material );
+		this._object3D	= sprite
+		sprite.scale.multiplyScalar(4)
+		sprite.position.y	= 1.5
+		// add sprite to the character
+		character.root.add(this._object3D)
+	}
+	return 
+	
+	function buildChatBubble(text) {
+		// create the canvas
+		var canvas	= document.createElement("canvas");
+		var context	= canvas.getContext("2d");
+		canvas.width	= 1024;
+		canvas.height	= 512;
+		// center the origin
+		context.translate( canvas.width/2, canvas.height/2 );
+		// measure text
+		var fontSize	= 24;
+		context.font	= "bolder "+fontSize+"px Verdana";
+		var fontH	= fontSize;
+		var fontW	= context.measureText(text).width;
+		// build the background
+		context.fillStyle = "rgba(255,255,255,0.3)";
+		var scale	= 1.2;
+		context.fillRect(-fontW*scale/2,-fontH*scale/1.3,fontW*scale,fontH*scale)
+		// display the text
+		context.fillStyle = "rgba(0,0,0,0.7)";
+		context.fillText(text, -fontW/2, 0);
+		// return the canvas element
+		return canvas;
+	};
+}
 var THREEx	= THREEx || {};
 
 THREEx.createMinecraftCharBodyAnimations	= function(character){
@@ -815,7 +897,9 @@ THREEx.MinecraftCharHeadAnimations	= function(character){
 THREEx.MinecraftCharHeadAnimations.prototype	= Object.create(THREEx.Animations.prototype);
 var THREEx	= THREEx || {};
 
-THREEx.MinecraftControls	= function(object3d, input){
+
+THREEx.MinecraftControls	= function(character, input){
+	var _this = this
 	// arguments default values
 	input		= input	|| {}
 
@@ -823,14 +907,14 @@ THREEx.MinecraftControls	= function(object3d, input){
 	this.speed		= 2;
 	this.angularSpeed	= 0.2 * Math.PI * 2;
 	this.input	= input;
-	this.object3d	= object3d;
+	this.object3d	= character.root;
 	
 	// user control
 	this.update	= function(delta, now){
-		var prevPosition	= object3d.position.clone();
+		var prevPosition	= _this.object3d.position.clone();
 		// rotation
-		if( input.left )	object3d.rotation.y += this.angularSpeed*delta
-		if( input.right )	object3d.rotation.y -= this.angularSpeed*delta
+		if( input.left )	_this.object3d.rotation.y += this.angularSpeed*delta
+		if( input.right )	_this.object3d.rotation.y -= this.angularSpeed*delta
 
 		// strafe
 		var distance	= 0;
@@ -840,7 +924,7 @@ THREEx.MinecraftControls	= function(object3d, input){
 			var velocity	= new THREE.Vector3(distance, 0, 0);
 			var matrix	= new THREE.Matrix4().makeRotationY(object3d.rotation.y);
 			velocity.applyMatrix4( matrix );
-			object3d.position.add(velocity);
+			_this.object3d.position.add(velocity);
 		}
 
 		// up/down
@@ -849,88 +933,94 @@ THREEx.MinecraftControls	= function(object3d, input){
 		if( input.down )	distance	= -this.speed * delta;
 		if( distance ){
 			var velocity	= new THREE.Vector3(0, 0, distance);
-			var matrix	= new THREE.Matrix4().makeRotationY(object3d.rotation.y);
+			var matrix	= new THREE.Matrix4().makeRotationY(_this.object3d.rotation.y);
 			velocity.applyMatrix4( matrix );
-			object3d.position.add(velocity);
+			_this.object3d.position.add(velocity);
 		}
 	}
+}
+
+THREEx.MinecraftControls.setKeyboardInput = function(controls, mappings){
+	mappings = mappings || ['wasd', 'ijkl', 'arrows']
+	
+	document.body.addEventListener('keydown', function(event){
+		var input	= controls.input
+		if( mappings.indexOf('wasd') !== -1 ){
+			if( event.keyCode === 'W'.charCodeAt(0) )	input.up	= true
+			if( event.keyCode === 'S'.charCodeAt(0) )	input.down	= true
+			if( event.keyCode === 'A'.charCodeAt(0) )	input.left	= true
+			if( event.keyCode === 'D'.charCodeAt(0) )	input.right	= true
+			if( event.keyCode === 'Q'.charCodeAt(0) )	input.strafeLeft= true
+			if( event.keyCode === 'E'.charCodeAt(0) )	input.strafeRight= true			
+		}
+
+		if( mappings.indexOf('ijkl') !== -1 ){
+			if( event.keyCode === 'I'.charCodeAt(0) )	input.up	= true
+			if( event.keyCode === 'K'.charCodeAt(0) )	input.down	= true
+			if( event.keyCode === 'J'.charCodeAt(0) )	input.left	= true
+			if( event.keyCode === 'L'.charCodeAt(0) )	input.right	= true
+			if( event.keyCode === 'U'.charCodeAt(0) )	input.strafeLeft= true
+			if( event.keyCode === 'O'.charCodeAt(0) )	input.strafeRight= true			
+		}
+
+		// to support arrows because tsate asked me :)
+		if( mappings.indexOf('arrows') !== -1 ){
+			if( event.keyCode === 38 )			input.up	= true
+			if( event.keyCode === 40 )			input.down	= true
+			if( event.keyCode === 37 && !event.shiftKey )	input.left	= true
+			if( event.keyCode === 39 && !event.shiftKey )	input.right	= true
+			if( event.keyCode === 37 &&  event.shiftKey )	input.strafeLeft= true
+			if( event.keyCode === 39 &&  event.shiftKey )	input.strafeRight= true
+		}
+	})
+
+	document.body.addEventListener('keyup', function(event){
+		var input	= controls.input
+		
+		if( mappings.indexOf('wasd') !== -1 ){
+			if( event.keyCode === 'W'.charCodeAt(0) )	input.up	= false
+			if( event.keyCode === 'S'.charCodeAt(0) )	input.down	= false
+			if( event.keyCode === 'A'.charCodeAt(0) )	input.left	= false
+			if( event.keyCode === 'D'.charCodeAt(0) )	input.right	= false
+			if( event.keyCode === 'Q'.charCodeAt(0) )	input.strafeLeft= false
+			if( event.keyCode === 'E'.charCodeAt(0) )	input.strafeRight= false
+		}
+				
+		if( mappings.indexOf('ijkl') !== -1 ){
+			if( event.keyCode === 'I'.charCodeAt(0) )	input.up	= false
+			if( event.keyCode === 'K'.charCodeAt(0) )	input.down	= false
+			if( event.keyCode === 'J'.charCodeAt(0) )	input.left	= false
+			if( event.keyCode === 'L'.charCodeAt(0) )	input.right	= false
+			if( event.keyCode === 'U'.charCodeAt(0) )	input.strafeLeft= false
+			if( event.keyCode === 'O'.charCodeAt(0) )	input.strafeRight= false
+		}
+
+
+		// to support arrows because tsate asked me :)
+		if( mappings.indexOf('arrows') !== -1 ){
+			if( event.keyCode === 38 )			input.up	= false
+			if( event.keyCode === 40 )			input.down	= false
+			if( event.keyCode === 37 ||  event.shiftKey )	input.left	= false
+			if( event.keyCode === 39 ||  event.shiftKey )	input.right	= false
+			if( event.keyCode === 37 || !event.shiftKey )	input.strafeLeft= false
+			if( event.keyCode === 39 || !event.shiftKey )	input.strafeRight= false
+		}
+	})	
+	return controls
 }
 var THREEx	= THREEx	|| {}
 
-THREEx.MinecraftPlayer	= function(){
-	
-	//////////////////////////////////////////////////////////////////////////////////
-	//		update functions						//
-	//////////////////////////////////////////////////////////////////////////////////
-	
-	var updateFcts= [];
-	this.update	= function(delta, now){
-		updateFcts.forEach(function(updateFct){
-			updateFct(delta, now)
-		})
-	}.bind(this)	
-	
-	//////////////////////////////////////////////////////////////////////////////////
-	//		character							//
-	//////////////////////////////////////////////////////////////////////////////////
-	
-	var character	= new THREEx.MinecraftChar()
-	this.character	= character
-	
-	//////////////////////////////////////////////////////////////////////////////////
-	//		animation							//
-	//////////////////////////////////////////////////////////////////////////////////
-			
-	var headAnims	= new THREEx.MinecraftCharHeadAnimations(character);
-	this.headAnims	= headAnims
-	updateFcts.push(function(delta, now){
-		headAnims.update(delta, now)	
-	})
-
-	// init bodyAnims
-	var bodyAnims	= new THREEx.MinecraftCharBodyAnimations(character);
-	this.bodyAnims	= bodyAnims
-	updateFcts.push(function(delta, now){
-		bodyAnims.update(delta, now)	
-	})
-	
-	//////////////////////////////////////////////////////////////////////////////////
-	//		animation based on velocity					//
-	//////////////////////////////////////////////////////////////////////////////////
-	
-	updateFcts.push(function(delta, now){
-		var input	= controls.input
-		if( input.up || input.down ){
-			bodyAnims.start('run');			
-		}else if( input.strafeLeft || input.strafeRight ){
-			bodyAnims.start('strafe');
-		}else {
-			bodyAnims.start('stand');			
-		}
-	})
-	
-	//////////////////////////////////////////////////////////////////////////////////
-	//		controls							//
-	//////////////////////////////////////////////////////////////////////////////////	
-	var controls	= new THREEx.MinecraftControls(character.root)
-	this.controls	= controls
-	updateFcts.push(function(delta, now){
-		controls.update(delta, now)
-	})
-
-	//////////////////////////////////////////////////////////////////////////////////
-	//		Nickname							//
-	//////////////////////////////////////////////////////////////////////////////////
-	this._nicknameObject3D	= null;
-	this.clearNickName	= function(){
-		if( this._nicknameObject3D === null )	return
-		character.root.remove(this._nicknameObject3D)
-		this._nicknameObject3D	= null
+THREEx.MinecraftNickname	= function(character){
+	this.object3d	= null;
+	this.clear	= function(){
+		if( this.object3d === null )	return
+		character.root.remove(this.object3d)
+		this.object3d	= null
 	}
-	this.setNickname= function(nickName){
-		if( this._nicknameObject3D )	this.clearNickName()
+	this.set = function(nickName){
+		if( this.object3d )	this.clear()
 		// build the texture
-		var canvas	= THREEx.MinecraftPlayer._buildNickCartouche(nickName);
+		var canvas	= buildNickCartouche(nickName);
 		var texture	= new THREE.Texture(canvas)
 		texture.needsUpdate	= true
 		// build the sprite itself
@@ -939,122 +1029,53 @@ THREEx.MinecraftPlayer	= function(){
 			useScreenCoordinates	: false
 		});
 		var sprite		= new THREE.Sprite( material );
-		this._nicknameObject3D	= sprite
+		this.object3d	= sprite
 		sprite.position.y	= 1.15
 		// add sprite to the character
-		character.root.add(this._nicknameObject3D)
+		character.root.add(this.object3d)
 	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	//		Say								//
-	//////////////////////////////////////////////////////////////////////////////////
-	this._sayObject3D	= null
-	this._sayBirthDate	= null
-	this.sayTimeout		= 10.0
-	updateFcts.push(function(delta, now){
-		// if there is no say at the moment, do nothing
-		if( this._sayBirthDate === null )	return
-		// if the say sprite isnt old enougth to timeout, do nothing
-		var sayAge	= (Date.now() - this._sayBirthDate)/1000.0
-		if( sayAge < this.sayTimeout )		return
-		// remove the say sprite
-		this.clearSay()
-	}.bind(this))
-	this.clearSay	= function(){
-		if( this._sayObject3D === null )	return
-		character.root.remove(this._sayObject3D)
-		this._sayObject3D	= null
-		this._sayBirthDate	= null
-	}
-	this.setSay	= function(nickName){
-		if( this._sayObject3D )	this.clearSay()
-		// update for timer
-		this._sayBirthDate	= Date.now()
-		// build the texture
-		var canvas	= THREEx.MinecraftPlayer._buildChatBubble(nickName);
-		var texture	= new THREE.Texture(canvas)
-		texture.needsUpdate	= true
-		// build the sprite itself
-		var material	= new THREE.SpriteMaterial({
-			map			: texture,
-			useScreenCoordinates	: false
-		});
-		var sprite		= new THREE.Sprite( material );
-		this._sayObject3D	= sprite
-		sprite.scale.multiplyScalar(4)
-		sprite.position.y	= 1.5
-		// add sprite to the character
-		character.root.add(this._sayObject3D)
-	}
+	return
+	/**
+	 * Build a canvas for the nickname cartouche
+	 */
+	function buildNickCartouche(text){
+		// create the canvas
+		var canvas	= document.createElement("canvas");
+		var context	= canvas.getContext("2d");
+		canvas.width	= 256;
+		canvas.height	= 128;
+		// center the origin
+		context.translate( canvas.width/2, canvas.height/2 );
+		// measure text
+		var fontSize	= 36;
+		context.font	= "bolder "+fontSize+"px Verdana";
+		var fontH	= fontSize;
+		var fontW	= context.measureText(text).width;
+		// build the background
+		context.fillStyle = "rgba(0,0,255,0.3)";
+		var scale	= 1.2;
+		context.fillRect(-fontW*scale/2,-fontH*scale/1.3,fontW*scale,fontH*scale)
+		// display the text
+		context.fillStyle = "rgba(0,0,0,0.7)";
+		context.fillText(text, -fontW/2, 0);
+		// return the canvas element
+		return canvas;
+	};
 }
+//////////////////////////////////////////////////////////////////////////////
+//                Code Separator
+//////////////////////////////////////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////////
-//		static function							//
-//////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Build a canvas for the chat bubble
- */
-THREEx.MinecraftPlayer._buildChatBubble = function(text) {
-	// create the canvas
-	var canvas	= document.createElement("canvas");
-	var context	= canvas.getContext("2d");
-	canvas.width	= 1024;
-	canvas.height	= 512;
-	// center the origin
-	context.translate( canvas.width/2, canvas.height/2 );
-	// measure text
-	var fontSize	= 24;
-	context.font	= "bolder "+fontSize+"px Verdana";
-	var fontH	= fontSize;
-	var fontW	= context.measureText(text).width;
-	// build the background
-	context.fillStyle = "rgba(255,255,255,0.3)";
-	var scale	= 1.2;
-	context.fillRect(-fontW*scale/2,-fontH*scale/1.3,fontW*scale,fontH*scale)
-	// display the text
-	context.fillStyle = "rgba(0,0,0,0.7)";
-	context.fillText(text, -fontW/2, 0);
-	// return the canvas element
-	return canvas;
-};
-
-/**
- * Build a canvas for the nickname cartouche
- */
-THREEx.MinecraftPlayer._buildNickCartouche = function(text){
-	// create the canvas
-	var canvas	= document.createElement("canvas");
-	var context	= canvas.getContext("2d");
-	canvas.width	= 256;
-	canvas.height	= 128;
-	// center the origin
-	context.translate( canvas.width/2, canvas.height/2 );
-	// measure text
-	var fontSize	= 36;
-	context.font	= "bolder "+fontSize+"px Verdana";
-	var fontH	= fontSize;
-	var fontW	= context.measureText(text).width;
-	// build the background
-	context.fillStyle = "rgba(0,0,255,0.3)";
-	var scale	= 1.2;
-	context.fillRect(-fontW*scale/2,-fontH*scale/1.3,fontW*scale,fontH*scale)
-	// display the text
-	context.fillStyle = "rgba(0,0,0,0.7)";
-	context.fillText(text, -fontW/2, 0);
-	// return the canvas element
-	return canvas;
-};
-// The mesh mixin provides common material properties for creating mesh-based primitives.
-// This makes the material component a default component and maps all the base material properties.
 AFRAME.registerPrimitive('a-minecraft', AFRAME.utils.extendDeep({}, AFRAME.primitives.getMeshMixin(), {
-  // Preset default components. These components and component properties will be attached to the entity out-of-the-box.
-  defaultComponents: {
-    minecraft: {},
-    'minecraft-head-anim': 'yes',
-    // 'minecraft-body-anim': {},
-  },
+        defaultComponents: {
+                minecraft: {},
+                // TODO check those default values
+                'minecraft-head-anim': 'still',
+                'minecraft-body-anim': 'stand',
+                'minecraft-nickname': 'John',
+                'minecraft-bubble': '',
+                'minecraft-controls': {},
+        },
 }));
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1083,6 +1104,7 @@ AFRAME.registerComponent('minecraft', {
 		// this.el.setObject3D('superRoot', character.root);
 	},
 	update: function () {
+                if( Object.keys(this.data).length === 0 )       return
 		var character = this.character
 		character.root.scale.set(1,1,1).multiplyScalar(this.data.heightMeter)
 		
@@ -1111,6 +1133,7 @@ AFRAME.registerComponent('minecraft-head-anim', {
 		this.headAnims.update(delta/1000,now/1000)
 	},
 	update: function () {
+                if( Object.keys(this.data).length === 0 )       return
 		console.assert( this.headAnims.names().indexOf(this.data) !== -1 )
 		this.headAnims.start(this.data);			
 	},
@@ -1130,10 +1153,84 @@ AFRAME.registerComponent('minecraft-body-anim', {
 		this.bodyAnims	= new THREEx.MinecraftCharBodyAnimations(character);
 	},
 	tick : function(now, delta){
+                // force the animation according to controls
+                var minecraftControls = this.el.components['minecraft-controls']
+                if( minecraftControls ){
+                        var input = minecraftControls.controls.input
+                        if( input.up || input.down ){
+                                this.bodyAnims.start('run');			
+                        }else if( input.strafeLeft || input.strafeRight ){
+                                this.bodyAnims.start('strafe');
+                        }else {
+                                this.bodyAnims.start('stand');			
+                        }        
+                }
+                // update the animation
 		this.bodyAnims.update(delta/1000,now/1000)
 	},
 	update: function () {
+                if( Object.keys(this.data).length === 0 )       return
 		console.assert( this.bodyAnims.names().indexOf(this.data) !== -1 )
 		this.bodyAnims.start(this.data);
+	},
+});
+
+
+//////////////////////////////////////////////////////////////////////////////
+//		Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
+AFRAME.registerComponent('minecraft-nickname', {
+	schema: {
+		type: 'string',
+		default : 'Joe',
+	},
+	init: function () {
+		var character = this.el.components.minecraft.character
+		this.nickName	= new THREEx.MinecraftNickname(character);
+	},
+	update: function () {
+                if( Object.keys(this.data).length === 0 )       return
+		this.nickName.set(this.data);
+	},
+});
+
+//////////////////////////////////////////////////////////////////////////////
+//		Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
+AFRAME.registerComponent('minecraft-bubble', {
+	schema: {
+		type: 'string',
+		default : 'Hello world.',
+	},
+	init: function () {
+		var character = this.el.components.minecraft.character
+		this.bubble	= new THREEx.MinecraftBubble(character);
+	},
+        update: function () {
+                if( Object.keys(this.data).length === 0 )       return
+		this.bubble.set(this.data);
+	},
+        tick : function(now, delta){
+                this.bubble.update(delta/1000,now/1000)
+	},
+});
+
+
+//////////////////////////////////////////////////////////////////////////////
+//		Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
+AFRAME.registerComponent('minecraft-controls', {
+	schema: {
+	},
+	init: function () {
+		var character = this.el.components.minecraft.character
+		this.controls	= new THREEx.MinecraftControls(character)
+                THREEx.MinecraftControls.setKeyboardInput(this.controls, ['wasd', 'arrows', 'ijkl'])
+	},
+        tick : function(now, delta){
+                this.controls.update(delta/1000,now/1000)
 	},
 });

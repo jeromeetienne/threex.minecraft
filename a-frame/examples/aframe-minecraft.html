@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <script src="https://aframe.io/releases/0.4.0/aframe.min.js"></script>
-<script src='../build/aframe-minecraft.js'></script>
+<script src='../build/aframe-minecraft.min.js'></script>
 <script>THREEx.MinecraftChar.baseUrl = '../../'</script>
 <body>
 	<a-scene>
@@ -11,6 +11,9 @@
 		<a-entity position="-1 0 -3" minecraft='skinUrl: ../../images/3djesus.png' minecraft-head-anim='yes'></a-entity>
 		<a-entity position="2 0 -3" minecraft='wellKnownSkin: agentsmith'  minecraft-body-anim='hiwave'></a-entity>
 
+		<!-- disable wasd controls on the camera - thus it is possible to move the character with those -->
+		<a-entity camera="userHeight: 1.6" look-controls></a-entity>
+		
 		<!-- put some other objects in the scene -->
 		<a-sphere position="0 1.25 -5" radius="1.25" color="#EF2D5E"></a-sphere>
 		<a-cylinder position="1 0.75 -3" radius="0.5" height="1.5" color="#FFC65D"></a-cylinder>

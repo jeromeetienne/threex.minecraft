@@ -1,14 +1,16 @@
-// The mesh mixin provides common material properties for creating mesh-based primitives.
-// This makes the material component a default component and maps all the base material properties.
+//////////////////////////////////////////////////////////////////////////////
+//                Code Separator
+//////////////////////////////////////////////////////////////////////////////
+
 AFRAME.registerPrimitive('a-minecraft', AFRAME.utils.extendDeep({}, AFRAME.primitives.getMeshMixin(), {
-        // Preset default components. These components and component properties will be attached to the entity out-of-the-box.
         defaultComponents: {
                 minecraft: {},
-                'minecraft-head-anim': 'yes',
-                'minecraft-body-anim': 'still',
-                'minecraft-nickname': 'still',
-                'minecraft-bubble': 'still',
-                'minecraft-controls': 'still',
+                // TODO check those default values
+                'minecraft-head-anim': 'still',
+                'minecraft-body-anim': 'stand',
+                'minecraft-nickname': 'John',
+                'minecraft-bubble': '',
+                'minecraft-controls': {},
         },
 }));
 
@@ -38,6 +40,7 @@ AFRAME.registerComponent('minecraft', {
 		// this.el.setObject3D('superRoot', character.root);
 	},
 	update: function () {
+                if( Object.keys(this.data).length === 0 )       return
 		var character = this.character
 		character.root.scale.set(1,1,1).multiplyScalar(this.data.heightMeter)
 		
@@ -66,6 +69,7 @@ AFRAME.registerComponent('minecraft-head-anim', {
 		this.headAnims.update(delta/1000,now/1000)
 	},
 	update: function () {
+                if( Object.keys(this.data).length === 0 )       return
 		console.assert( this.headAnims.names().indexOf(this.data) !== -1 )
 		this.headAnims.start(this.data);			
 	},
@@ -101,6 +105,7 @@ AFRAME.registerComponent('minecraft-body-anim', {
 		this.bodyAnims.update(delta/1000,now/1000)
 	},
 	update: function () {
+                if( Object.keys(this.data).length === 0 )       return
 		console.assert( this.bodyAnims.names().indexOf(this.data) !== -1 )
 		this.bodyAnims.start(this.data);
 	},
@@ -121,6 +126,7 @@ AFRAME.registerComponent('minecraft-nickname', {
 		this.nickName	= new THREEx.MinecraftNickname(character);
 	},
 	update: function () {
+                if( Object.keys(this.data).length === 0 )       return
 		this.nickName.set(this.data);
 	},
 });
@@ -139,6 +145,7 @@ AFRAME.registerComponent('minecraft-bubble', {
 		this.bubble	= new THREEx.MinecraftBubble(character);
 	},
         update: function () {
+                if( Object.keys(this.data).length === 0 )       return
 		this.bubble.set(this.data);
 	},
         tick : function(now, delta){
@@ -163,4 +170,3 @@ AFRAME.registerComponent('minecraft-controls', {
                 this.controls.update(delta/1000,now/1000)
 	},
 });
-

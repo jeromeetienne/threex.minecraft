@@ -17,14 +17,14 @@ THREEx.MinecraftBubble	= function(character){
 	//		Say								//
 	//////////////////////////////////////////////////////////////////////////////////
 	this._object3D	= null
-	this._sayBirthDate	= null
-	this.sayTimeout		= 10.0
+	this._createdAt	= null
+	this.expireAfter= 10.0
 	this.update	= function(delta, now){
 		// if there is no say at the moment, do nothing
-		if( _this._sayBirthDate === null )	return
+		if( _this._createdAt === null )	return
 		// if the say sprite isnt old enougth to timeout, do nothing
-		var sayAge	= (Date.now() - _this._sayBirthDate)/1000.0
-		if( sayAge < _this.sayTimeout )		return
+		var sayAge	= (Date.now() - _this._createdAt)/1000.0
+		if( sayAge < _this.expireAfter )		return
 		// remove the say sprite
 		_this.clear()
 	}
@@ -32,12 +32,12 @@ THREEx.MinecraftBubble	= function(character){
 		if( this._object3D === null )	return
 		character.root.remove(this._object3D)
 		this._object3D	= null
-		this._sayBirthDate	= null
+		this._createdAt	= null
 	}
 	this.set	= function(text){
 		if( this._object3D )	this.clear()
 		// update for timer
-		this._sayBirthDate	= Date.now()
+		this._createdAt	= Date.now()
 		// build the texture
 		var canvas	= buildChatBubble(text);
 		var texture	= new THREE.Texture(canvas)

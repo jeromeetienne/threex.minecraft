@@ -19,7 +19,7 @@ Docs are scarces, but examples are clear. Play with the examples, modify them, t
 # A-Frame Support
 You can include it in your a-frame too - [a-frame example](https://jeromeetienne.github.io/threex.minecraft.js/a-frame/examples/aframe-minecraft.html)
 
-You can download the component from [here](https://jeromeetienne.github.io/threex.minecraft.js/a-frame/build/aframe-minecraft.js)
+You can download the components from [here](https://jeromeetienne.github.io/threex.minecraft.js/a-frame/build/aframe-minecraft.js)
 
 # Futures
 - make an actual [threex README.md](https://github.com/jeromeetienne/threex.sample/blob/master/README.md)
