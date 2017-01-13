@@ -8,6 +8,7 @@ AFRAME.registerPrimitive('a-minecraft', AFRAME.utils.extendDeep({}, AFRAME.primi
                 'minecraft-body-anim': 'still',
                 'minecraft-nickname': 'still',
                 'minecraft-bubble': 'still',
+                'minecraft-controls': 'still',
         },
 }));
 
