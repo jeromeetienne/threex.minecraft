@@ -5,13 +5,19 @@
 AFRAME.registerPrimitive('a-minecraft', AFRAME.utils.extendDeep({}, AFRAME.primitives.getMeshMixin(), {
         defaultComponents: {
                 minecraft: {},
-                // TODO check those default values
                 'minecraft-head-anim': 'still',
                 'minecraft-body-anim': 'stand',
                 'minecraft-nickname': 'John',
                 'minecraft-bubble': '',
                 'minecraft-controls': {},
         },
+        mappings: {
+                'head-anim': 'minecraft-head-anim',
+                'body-anim': 'minecraft-body-anim',
+                'nickname': 'minecraft-nickname',
+                'bubble': 'minecraft-bubble',
+                'controls': 'minecraft-controls',
+        }
 }));
 
 //////////////////////////////////////////////////////////////////////////////
