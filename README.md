@@ -24,3 +24,4 @@ You can download the component from [here](https://jeromeetienne.github.io/three
 # Futures
 - make an actual [threex README.md](https://github.com/jeromeetienne/threex.sample/blob/master/README.md)
 - improve a-frame support
+  - package all js in a build/aframe-minecraft.min.js
