@@ -14,7 +14,7 @@ Here are the examples you can try
 * [player](https://jeromeetienne.github.io/threex.minecraft.js/examples/player.html): a demo of a player. Aka a full featured object to satisfy typical usages
 * [requirejs](https://jeromeetienne.github.io/threex.minecraft.js/examples/requirejs.html): an example with the library require.js
 
-Docs are scarced, but examples are clear. Play with the examples, modify them, tweak the value. 
+Docs are scarces, but examples are clear. Play with the examples, modify them, tweak the value. 
 
 # A-Frame Support
 You can include it in your a-frame too - [a-frame example](https://jeromeetienne.github.io/threex.minecraft.js/a-frame/examples/aframe-minecraft.html)
@@ -24,4 +24,6 @@ You can download the component from [here](https://jeromeetienne.github.io/three
 # Futures
 - make an actual [threex README.md](https://github.com/jeromeetienne/threex.sample/blob/master/README.md)
 - improve a-frame support
+  - add the player with it as an entity
+    - https://aframe.io/docs/0.4.0/primitives/#register-a-primitive
   - package all js in a build/aframe-minecraft.min.js
